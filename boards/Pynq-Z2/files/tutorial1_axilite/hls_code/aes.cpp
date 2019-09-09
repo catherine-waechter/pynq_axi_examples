@@ -1,6 +1,6 @@
 /*
 This is an implementation of the ECB mode of the AES algorithm, based on the tiny AES
-	implementation found at:
+	implementation found at: https://github.com/kokke/tiny-AES-c 
 	This version has been made synthesisable and optimised for implementation on a Zynq FPGA
 
 The implementation is verified against the test vectors in:
@@ -316,12 +316,8 @@ WR_Loop_Col:
    }
 }
 
+/* Top level Function */
 void aes(ap_uint<128> key, uint8_t input[16], uint8_t output[16]){
-#pragma HLS INTERFACE s_axilite port=output
-#pragma HLS INTERFACE s_axilite port=input
-#pragma HLS INTERFACE s_axilite port=key
-#pragma HLS INTERFACE ap_ctrl_none port=return
-
 #pragma HLS PIPELINE
 #pragma HLS ARRAY_PARTITION variable=RoundKey complete dim=1
 
