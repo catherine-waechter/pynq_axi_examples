@@ -3,9 +3,9 @@
 This repository contains three tutorials discussing the AXI interfaces, and show how they can be used in hardware designs with PYNQ.
 All three tutorials are based on a C++ implementation of the Advanced Encryption Standard.
 
-Tutorial 1: AXILite
-Tutorial 2: AXI Stream
-Tutorial 3: Full AXI
+Tutorial 1: AXILite  
+Tutorial 2: AXI Stream   
+Tutorial 3: Full AXI  
 
 For each tutorial, all explanations are contained in the iPython notebook. HLS Code can be found in the hls_code directory for each tutorial, and bitstreams are already provided in the bitstream file.
 
