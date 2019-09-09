@@ -1,8 +1,28 @@
-/* AES Code version 1, with long key
-	HLS: works in sim
-	Vivado: implemented with the smart connect
-		with interrupt controller (aes_stream > project 1 > design 2) -> decode error
-		without interrupt controller (rebuild 2) -> general dma error
+/*
+This is an implementation of the ECB mode of the AES algorithm, based on the tiny AES
+	implementation found at: https://github.com/kokke/tiny-AES-c 
+	This version has been made synthesisable and optimised for implementation on a Zynq FPGA
+	using streaming interfaces
+	
+The implementation is verified against the test vectors in:
+  National Institute of Standards and Technology Special Publication 800-38A 2001 ED
+ECB-AES128
+----------
+  plain-text:
+    6bc1bee22e409f96e93d7e117393172a
+    ae2d8a571e03ac9c9eb76fac45af8e51
+    30c81c46a35ce411e5fbc1191a0a52ef
+    f69f2445df4f9b17ad2b417be66c3710
+  key:
+    2b7e151628aed2a6abf7158809cf4f3c
+  resulting cipher
+    3ad77bb40d7a3660a89ecaf32466ef97
+    f5d3d58503b9699de785895a96fdbaaf
+    43b1cd7f598ece23881b00e3ed030688
+    7b0c785e27e8ad3f8223207104725dd4
+NOTE:   String length must be evenly divisible by 16byte (str_len % 16 == 0)
+        You should pad the end of the string with zeros if this is not the case.
+        For AES192/256 the key size is proportionally larger.
 */
 
 /*****************************************************************************/
@@ -302,11 +322,9 @@ WR_Loop_Col:
    }
 }
 
+
+/* Top level function */
 void aes(ap_uint<128> key, stream_type* in_stream, stream_type* out_stream){
-#pragma HLS INTERFACE s_axilite port=return
-#pragma HLS INTERFACE s_axilite port=key
-#pragma HLS INTERFACE axis register both depth=64 port=out_stream
-#pragma HLS INTERFACE axis register both depth=64 port=in_stream
 
 #pragma HLS PIPELINE enable_flush
 	uint8_t key_new[16];
