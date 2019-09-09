@@ -1,6 +1,9 @@
 /*
-This is an implementation of the AES algorithm, specifically ECB, CTR and CBC mode.
-Block size can be chosen in aes.h - available choices are AES128, AES192, AES256.
+This is an implementation of the ECB mode of the AES algorithm, based on the tiny AES
+	implementation found at: https://github.com/kokke/tiny-AES-c 
+	This version has been made synthesisable and optimised for implementation on a Zynq FPGA
+	using the Full AXI4 protocol
+
 The implementation is verified against the test vectors in:
   National Institute of Standards and Technology Special Publication 800-38A 2001 ED
 ECB-AES128
@@ -13,16 +16,14 @@ ECB-AES128
   key:
     2b7e151628aed2a6abf7158809cf4f3c
   resulting cipher
-    3ad77bb40d7a3660a89ecaf32466ef97 
-    f5d3d58503b9699de785895a96fdbaaf 
-    43b1cd7f598ece23881b00e3ed030688 
-    7b0c785e27e8ad3f8223207104725dd4 
+    3ad77bb40d7a3660a89ecaf32466ef97
+    f5d3d58503b9699de785895a96fdbaaf
+    43b1cd7f598ece23881b00e3ed030688
+    7b0c785e27e8ad3f8223207104725dd4
 NOTE:   String length must be evenly divisible by 16byte (str_len % 16 == 0)
         You should pad the end of the string with zeros if this is not the case.
         For AES192/256 the key size is proportionally larger.
 */
-
-// Final version - ii = 1
 
 /*****************************************************************************/
 /* Includes:                                                                 */
@@ -339,19 +340,14 @@ WR_Loop_Col:
 void aes(ap_uint<128> key, ap_uint<128> input[NBR_BLOCKS], ap_uint<128> output[NBR_BLOCKS], int size)
  {
 #pragma HLS DATAFLOW
-#pragma HLS INTERFACE s_axilite port=size
-#pragma HLS INTERFACE m_axi depth=4 port=output offset=slave
-#pragma HLS INTERFACE m_axi depth=4 port=input offset=slave
-#pragma HLS INTERFACE s_axilite port=key
-#pragma HLS INTERFACE ap_ctrl_hs port=return
-
+	
 	uint8_t key_new[16];
 	state_t state;
 	uint8_t RoundKey[AES_keyExpSize];
 #pragma HLS ARRAY_PARTITION variable=RoundKey complete dim=1
 	ap_uint<128> mem_buff_in[NBR_BLOCKS], mem_buff_out[NBR_BLOCKS];
 
-	memcpy(mem_buff_in,(const ap_uint<128>*)input,size);	// copy data from memory
+	memcpy(mem_buff_in,(const ap_uint<128>*)input,size);		// copy data from memory
 
 	read_key(key, key_new);						// process key
 	KeyExpansion(RoundKey, key_new);
@@ -365,7 +361,7 @@ void aes(ap_uint<128> key, ap_uint<128> input[NBR_BLOCKS], ap_uint<128> output[N
 		write_data(state, mem_buff_out[i]);
 	}
 
-	memcpy(output,mem_buff_out,size);					// copy data into memory
+	memcpy(output,mem_buff_out,size);				// copy data into memory
 }
 
 
